@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Approval - Image Comparison</title>
+    <style>
+        <%= @diff_css %>
+        
+        td {padding: 6pt}
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+    <script><%= @diff_js %></script>
+  </head>
+  <body>
+    <h2>Approval - Image Comparison</h2>
+    <table>
+        <thead>
+            <td><strong>Reference</strong></td>
+            <td><strong>Difference</strong></td>
+            <td><strong>Snapshot</strong></td>
+        </thead>
+        <tbody>
+            <tr>
+                <td><img id="reference" src=""/></td>
+                <td><img id="diff" src=""/></td>
+                <td><img id="snapshot" src=""/></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p></p>
+
+    <div style="font-size: 0.75em"><strong>Reference:</strong> <%= @reference_path %></div>
+    <div style="font-size: 0.75em"><strong>Snapshot:</strong> <%= @snapshot_path %></div>
+  </body>
+
+  <div id="reference-data" data-img="<%= @reference_data %>"></div>
+  <div id="snapshot-data" data-img="<%= @snapshot_data %>"></div>
+
+  <script>
+    function dataToFile(data, mime, filename) {
+        var bstr = atob(data), 
+            n = bstr.length, 
+            u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, {type:mime});
+    }
+
+    resemble.outputSettings({
+        errorColor: {
+            red: 255,
+            green: 0,
+            blue: 255
+        },
+        transparency: 0.3,
+        outputDiff: true
+    });
+
+    var refImg = document.getElementById("reference");
+    var diffImg = document.getElementById("diff");
+    var snapImg = document.getElementById("snapshot");
+
+    var refData = document.getElementById("reference-data").dataset["img"];
+    var snapData = document.getElementById("snapshot-data").dataset["img"];
+
+    refImg.src = "data:image/png;base64," + refData;
+    snapImg.src = "data:image/png;base64," + snapData;
+
+    var refFile = dataToFile(refData, "reference.png", "@reference_path");
+    var snapFile = dataToFile(snapData, "snapshot.png", "@snapshot_path");
+
+    resemble(refFile).compareTo(snapFile).onComplete(function (data) {
+        diffImg.src = data.getImageDataUrl();
+    });
+  </script>
+</html>
