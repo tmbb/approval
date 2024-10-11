@@ -1,17 +1,24 @@
 defmodule Approval.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :approval,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.16",
+      build_embedded: Mix.env == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: [
         assets: %{"assets" => "assets"},
         extras: ["README.md"]
-      ]
+      ],
+      package: package(),
+      name: "Approval",
+      description: "Lightweight approval testing for Elixir",
+      source_url: "https://github.com/tmbb/approval"
     ]
   end
 
@@ -25,7 +32,17 @@ defmodule Approval.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package() do
+    [
+      # These are the default files included in the package
+      files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE*
+                license* CHANGELOG* changelog* src),
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/tmbb/approval"}
     ]
   end
 end
