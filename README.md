@@ -1,8 +1,10 @@
 # Approval
 
+<!-- README SECTION -->
+
 Support for approval testing, especially of code that generated image.
 
-First, the test wouldn't be manually reviewed:
+First, the test wouldn't have been manually reviewed:
 
     import Approve
 
@@ -11,7 +13,9 @@ First, the test wouldn't be manually reviewed:
 
       approve snapshot: File.read!("snapshot.png"),
               reference: File.read!("reference.png"), # this file doesn't exist, it will be created
-              reviewed: false # the user hasn't manually reviewed the reference yet
+              reviewed: false # The user hasn't manually reviewed the reference yet.
+                              # After it has been reviewed, this value should be
+                              # updated to `true`
     end
 
 When you run the test above, the code will copy the snapshot into the reference.
@@ -34,7 +38,7 @@ After reviewing the reference file, you should update the code above by replacin
 If at any point the snapshot file becomes different from the reference,
 the test will fail and the `approve` macro will generate an HTML file
 next to the snapshot named "snapshot.png.diff.html" (in general it will be
-`reference_path <> "diff.html"`). That HTML file contains the old and new
+`snapshot_path <> "diff.html"`). That HTML file contains the old and new
 versions of the images side by side. In the middle it shows the difference
 between the two images.
 
@@ -65,6 +69,29 @@ In the future, I plan to support other kinds of data besides images,
 and that is the goal of the somewhat verbose `snapshot: File.read!(path)`
 syntax, instead of the shorter `snapshot: path` alternative.
 
+<!-- README SECTION -->
+
+## Real-time snapshot preview
+
+The main goal of `Approval` is to help automatically generate reference
+files for snapshot testing and review the changes between the references
+and the snapshot.
+
+The best way to review differences in images is to display the images
+side-by-side with a visual diff in the middle.
+
+Although I'd like to be able to do it in the command line, the only
+way of doing it portably is with a web browser (in which case the image diff
+can be done and displayed in Javascript).
+
+The workflow of reviewing images can't be easily made intercactive without
+doing something pretty heavy handed such as running a web app app,
+which seems too complex for this use case.
+
+Other snapshot testing libraries are focusing on updating test results
+interactively inside the Elixir code, but I don't think interactivity is a good
+feature for this library.
+
 ## Installation
 
 The package is [available in Hex](https://hex.pm/docs/publish) and can be installed
@@ -73,7 +100,7 @@ by adding `approval` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:approval, "~> 0.1.0"}
+    {:approval, "~> 0.2.0"}
   ]
 end
 ```
