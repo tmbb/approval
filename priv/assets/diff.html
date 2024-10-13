@@ -71,8 +71,8 @@
     refImg.src = "data:image/png;base64," + refData;
     snapImg.src = "data:image/png;base64," + snapData;
 
-    var refFile = dataToFile(refData, "reference.png", "@reference_path");
-    var snapFile = dataToFile(snapData, "snapshot.png", "@snapshot_path");
+    var refFile = dataToFile(refData, "reference.png", "<%= @reference_path %>");
+    var snapFile = dataToFile(snapData, "snapshot.png", "<%= @snapshot_path %>");
 
     resemble(refFile).compareTo(snapFile).onComplete(function (data) {
         diffImg.src = data.getImageDataUrl();

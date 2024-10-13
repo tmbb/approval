@@ -19,7 +19,7 @@ defmodule Approval do
 
   @doc false
   def generate_diff_html(reference_path, snapshot_path, reference_data, snapshot_data) do
-    diff_path = reference_path <> ".diff.html"
+    diff_path = snapshot_path <> ".diff.html"
 
     html_file_content = diff_html(
       snapshot_path: snapshot_path,
@@ -33,12 +33,12 @@ defmodule Approval do
     File.write!(diff_path, html_file_content)
   end
 
-  defp approve_images(reference_path, snapshot_path, approved) do
+  defp approve_images(reference_path, snapshot_path, reviewed) do
     quote do
       require Logger
       reference_path = unquote(reference_path)
       snapshot_path = unquote(snapshot_path)
-      approved = unquote(approved)
+      reviewed = unquote(reviewed)
       diff_path = reference_path <> ".diff.html"
 
       cond do
@@ -54,28 +54,33 @@ defmodule Approval do
         not File.exists?(reference_path) ->
           # If the reference file exists (maybe it was taken from somewhere else),
           # don't overwrite it! Only write a new reference file if it doesn't exist.
-          if not File.exists?(reference_path) do
-            # Write a NEW reference file
-            File.cp!(snapshot_path, reference_path)
+          # Write a NEW reference file
+          File.cp!(snapshot_path, reference_path)
+
+          if not reviewed do
+            Logger.warning("\nThe following reference file must be reviewed: " <>
+              "\"#{Path.relative_to_cwd(reference_path)}\"")
           end
 
-          Logger.warning("\nThe following reference file must be approved: " <>
-            "\"#{Path.relative_to_cwd(reference_path)}\"")
-
         # Both the reference file and the snapshot file exist,
-        # and the reference hasn't been approved yet
-        approved == false ->
+        # and the reference hasn't been reviewed yet
+        reviewed == false ->
           raise Approval.ApprovalError, "The following reference has not been reviewed: " <>
             "\"#{Path.relative_to_cwd(reference_path)}\""
 
         # Both the reference file and the snapshot file exist,
-        # and the reference has already been approved
-        approved == true ->
+        # and the reference has already been reviewed
+        reviewed == true ->
           # Finally, we can run a simple honest assert
           reference_content = File.read!(reference_path)
           snapshot_content = File.read!(snapshot_path)
 
-          if reference_content != snapshot_content do
+          if reference_content == snapshot_content do
+            # Delete the previous HTML diff, which is not needed anymore
+            if File.exists?(diff_path) do
+              File.rm!(diff_path)
+            end
+          else
             Approval.generate_diff_html(
               reference_path,
               snapshot_path,
