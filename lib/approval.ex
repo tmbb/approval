@@ -1,6 +1,6 @@
 defmodule Approval do
   @moduledoc """
-  ## Lightweight approval testing for Elixir
+  Lightweight approval testing for Elixir
 
   This package provides some utilities to help automatically generate
   reference images for test cases, review those reference images
@@ -43,7 +43,7 @@ defmodule Approval do
 
       cond do
         # No reference file exist. In this situation, simply fail the test.
-        # The user has to privide a reference file.
+        # The user has to provide a reference file.
         not File.exists?(snapshot_path) ->
           raise Approval.ApprovalError, "snapshot file \"#{Path.relative_to_cwd(snapshot_path)}\" " <>
             "does not exist."
