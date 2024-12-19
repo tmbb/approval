@@ -13,7 +13,8 @@ defmodule Approval.MixProject do
       deps: deps(),
       docs: [
         assets: %{"assets" => "assets"},
-        extras: ["README.md"]
+        extras: ["README.md"],
+        main: "Approval"
       ],
       package: package(),
       name: "Approval",
